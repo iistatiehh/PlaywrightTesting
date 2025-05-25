@@ -2,14 +2,20 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/login_page';
 import { InventoryPage } from '../pages/inventory_page';
 import { CartPage } from '../pages/cart_page';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 test.describe('Cart Tests', () => {
   let loginPage: LoginPage;
   let inventoryPage: InventoryPage;
   let cartPage: CartPage;
   
-  // Test data embedded directly in tests
-  const standardUser = { username: 'standard_user', password: 'secret_sauce' };
+  // Use env variables with fallback to empty string
+  const standardUser = {
+    username: process.env.LOGIN_USERNAME || '',
+    password: process.env.LOGIN_PASSWORD || ''
+  };
   const testItems = [
     'sauce-labs-backpack',
     'sauce-labs-bike-light',
@@ -24,7 +30,6 @@ test.describe('Cart Tests', () => {
     await loginPage.goto();
     await loginPage.login(standardUser.username, standardUser.password);
   });
-
 
   test('display added items in cart', async ({ page }) => {
     await inventoryPage.addItemToCart(testItems[0]);
@@ -72,8 +77,6 @@ test.describe('Cart Tests', () => {
     
     await expect(page).toHaveURL(/.*checkout-step-one.html/);
   });
-
-
 
   test('update cart badge when removing all items', async () => {
     await inventoryPage.addItemToCart(testItems[0]);

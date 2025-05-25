@@ -1,14 +1,20 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/login_page';
 import { InventoryPage } from '../pages/inventory_page';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 
 test.describe('Inventory Tests', () => {
   let loginPage: LoginPage;
   let inventoryPage: InventoryPage;
   
-  // Test data embedded directly in tests
-  const standardUser = { username: 'standard_user', password: 'secret_sauce' };
+  // Use env variables with fallback empty string
+  const standardUser = { 
+    username: process.env.LOGIN_USERNAME || '', 
+    password: process.env.LOGIN_PASSWORD || '' 
+  };
+
   const products = [
     'sauce-labs-backpack',
     'sauce-labs-bike-light', 
@@ -33,7 +39,7 @@ test.describe('Inventory Tests', () => {
     await loginPage.login(standardUser.username, standardUser.password);
   });
 
-  test(' add items to cart', async () => {
+  test('add items to cart', async () => {
     await inventoryPage.addItemToCart('sauce-labs-backpack');
     await inventoryPage.addItemToCart('sauce-labs-bike-light');
     await inventoryPage.addItemToCart('sauce-labs-bolt-t-shirt');
@@ -74,7 +80,6 @@ test.describe('Inventory Tests', () => {
   test('sort by price (low to high)', async () => {
     await inventoryPage.sortBy(sortOptions.priceLow);
     
-    // Verify the sort dropdown shows the correct selection
     const selectedValue = await inventoryPage.sortDropdown.inputValue();
     expect(selectedValue).toBe(sortOptions.priceLow);
   });
@@ -82,19 +87,18 @@ test.describe('Inventory Tests', () => {
   test('sort by price (high to low)', async () => {
     await inventoryPage.sortBy(sortOptions.priceHigh);
     
-    // Verify the sort dropdown shows the correct selection
     const selectedValue = await inventoryPage.sortDropdown.inputValue();
     expect(selectedValue).toBe(sortOptions.priceHigh);
   });
 
-  test('should navigate to cart page', async ({ page }) => {
+  test('navigate to cart page', async ({ page }) => {
     await inventoryPage.addItemToCart('sauce-labs-backpack');
     await inventoryPage.goToCart();
     
     await expect(page).toHaveURL(/.*cart.html/);
   });
 
-  test('should logout successfully', async ({ page }) => {
+  test('logout successfully', async ({ page }) => {
     await inventoryPage.logout();
     
     await expect(page).toHaveURL(/.*\/$/);

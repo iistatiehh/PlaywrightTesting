@@ -3,6 +3,9 @@ import { LoginPage } from '../pages/login_page';
 import { InventoryPage } from '../pages/inventory_page';
 import { CartPage } from '../pages/cart_page';
 import { CheckoutPage } from '../pages/checkout_page';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 test.describe('Checkout Tests', () => {
   let loginPage: LoginPage;
@@ -10,8 +13,11 @@ test.describe('Checkout Tests', () => {
   let cartPage: CartPage;
   let checkoutPage: CheckoutPage;
   
-  // Test data embedded directly in tests
-  const standardUser = { username: 'standard_user', password: 'secret_sauce' };
+  // Use env variables with fallback empty string
+  const standardUser = { 
+    username: process.env.LOGIN_USERNAME || '', 
+    password: process.env.LOGIN_PASSWORD || '' 
+  };
   const testItem = 'sauce-labs-backpack';
   
   const validCheckoutInfo = {
@@ -92,7 +98,5 @@ test.describe('Checkout Tests', () => {
     const errorMessage = await checkoutPage.getErrorMessage();
     expect(errorMessage).toContain('Postal Code is required');
   });
-
-
 
 });
